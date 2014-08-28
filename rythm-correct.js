@@ -12,44 +12,54 @@
  *in order to maintain vertical rythm.
 */
 
-var baselineHeight = 24; //define your baseline height, in pixels, here.
-var unitOfMeasurement = 'rem' //put your unit of measurement here. Either 'px' or 'rem'. Defaults to px.
+(function( $ ) {
+	var baselineHeight = 24; //define your baseline height, in pixels, here.
+	var unitOfMeasurement = 'rem' //put your unit of measurement here. Either 'px' or 'rem'. Defaults to px.
 
-$( window ).ready( function() {
-	$( '.rythm-correct' ).correctRythm();
-} );
-
-jQuery.fn.extend( function() {
-	//return an object containing the 
-	getSetUp: function() {
-		var setUpObject;
-		setUpObject.currentHeight = $( this ).outerHeight(true);
-		// setUpObject.fontsize = parseInt( $( this ).css( 'font-size' ) );
-		// setUpObject.lineheight = parseInt( $( this ).css( 'line-height' ) );
-		setUpObject.marginbottom = parseInt( $(this).css( 'margin-bottom' ) );
+	getSetUp =  function( jqueryElement ) {
+		var setUpObject = {};
+		setUpObject.currentHeight = jqueryElement.outerHeight(true);
+		setUpObject.marginbottom = parseInt( jqueryElement.css( 'margin-bottom' ) );
 		return setUpObject;
-	}
-	adjustRythmCss: function( setUpObject ) {
+	};
+	adjustRythmCss =  function( jqueryElement, setUpObject ) {
 		if( setUpObject.currentHeight % baselineHeight !== 0 ) {
-			var difference = setUpObject.currentHeight % baselineHeight;
+			var difference = baselineHeight - ( setUpObject.currentHeight % baselineHeight );
 			var newMargin = setUpObject.marginbottom + difference;
 			if( unitOfMeasurement == 'rem' ) {
-				var remBase = $( 'html' ).css( 'font-size' );
+				var remBase = parseInt( $( 'html' ).css( 'font-size' ) );
 				newMargin = newMargin / remBase;
-				$( this ).css( 'margin-bottom', newMargin + 'rem' );
+				jqueryElement.css( 'margin-bottom', newMargin + 'rem' );
 			} else {
-				$( this ).css( 'margin-bottom', newMargin + 'px' );
+				jqueryElement.css( 'margin-bottom', newMargin + 'px' );
 			}
 		} 
+	};
+	adjustMargin = function( jqueryElement ) {
+		var setUpObject = getSetUp( jqueryElement );
+		adjustRythmCss( jqueryElement, setUpObject );
 	}
-	correctRythm: function() {
-		var setUpObject = $( this ).getSetUp();
-		$( this ).adjustRythmCss( setUpObject );
-		$( this ).addResizeListener( setUpObject );
+	addResizeListener = function( jqueryElement ) {
+		jqueryElement.resize( function() {
+			adjustMargin( jqueryElement );
+		}, 50)
 	}
-	addResizeListener: function( setUpObject ) {
-		$( window ).resize( function() {
-			$( this ).adjustRythm( setUpObject );
-		}, 50 );
-	}
+	$.fn.correctRythm = function() {
+		this.each( function() {
+			if( $( this )[0].localName == 'img' ) {
+				$( this ).load( function() {
+					adjustMargin( $( this ) );
+					addResizeListener( $( this ) );
+				} );
+			} else {
+				adjustMargin( $( this ) );
+				addResizeListener( $( this ) );
+			}
+		} );
+		return this;
+	};
+} (jQuery) );
+
+jQuery( window ).ready( function($) {
+	$( '.rythm-correct' ).correctRythm();
 } );
