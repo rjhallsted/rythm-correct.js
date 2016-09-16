@@ -63,5 +63,5 @@
 } (jQuery) );
 
 jQuery( window ).ready( function($) {
-	$( '.rythm-correct' ).correctRythm();
+	$( '.rythm-correct, img' ).correctRythm();
 } );
