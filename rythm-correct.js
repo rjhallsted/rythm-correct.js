@@ -18,30 +18,43 @@
 
 	function getSetUp( jqueryElement ) {
 		var setUpObject = {};
-		setUpObject.currentHeight = jqueryElement.outerHeight(true);
+		setUpObject.transformSettings = jqueryElement.css('transform');
+
+		if( setUpObject.transformSettings ) {
+			jqueryElement.css('transform', 'none' );
+		}
+
+		setUpObject.currentHeight = jqueryElement.outerHeight();
 		setUpObject.marginbottom = parseInt( jqueryElement.css( 'margin-bottom' ) );
 		return setUpObject;
-	};
+	}
+
 	function adjustRythmCss( jqueryElement, setUpObject ) {
 		jqueryElement.css('display', 'block');
-		
+
 		if( setUpObject.currentHeight % baselineHeight !== 0 ) {
 			var difference = baselineHeight - ( setUpObject.currentHeight % baselineHeight );
 			var newMargin = setUpObject.marginbottom + difference;
 
 			if( unitOfMeasurement == 'rem' ) {
 				var remBase = parseInt( $( 'html' ).css( 'font-size' ) );
-				newMargin = newMargin / remBase;
+				newMargin /= remBase;
 				jqueryElement.css( 'margin-bottom', newMargin + 'rem' );
 			} else {
 				jqueryElement.css( 'margin-bottom', newMargin + 'px' );
 			}
 		}
-	};
+
+		if( setUpObject.transformSettings ) {
+			jqueryElement.css('transform', setUpObject.transformSettings );
+		}
+	}
+
 	function adjustMargin( jqueryElement ) {
 		var setUpObject = getSetUp( jqueryElement );
 		adjustRythmCss( jqueryElement, setUpObject );
 	}
+
 	function addResizeListener( jqueryElement ) {
 		jqueryElement.resize( function() {
 			setTimeout(function (element) {
@@ -49,10 +62,12 @@
 			}, 50, jqueryElement);
 		});
 	}
+
 	function adjust( jqueryElement ) {
 		adjustMargin( jqueryElement );
 		addResizeListener( jqueryElement );
 	}
+
 	$.fn.correctRythm = function( passedBaselineHeight, passedUnitOfMeasurement) {
 		baselineHeight = passedBaselineHeight;
 		unitOfMeasurement = passedUnitOfMeasurement;
@@ -66,8 +81,9 @@
 
 		return this;
 	};
+
 } (jQuery) );
 
-jQuery( window ).ready( function($) {
-	$( 'img' ).correctRythm( 24, 'rem');
+jQuery( document ).ready( function($) {
+	$( 'img' ).correctRythm( 24, 'rem' );
 } );
