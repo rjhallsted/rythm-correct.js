@@ -85,5 +85,5 @@
 } (jQuery) );
 
 jQuery( document ).ready( function($) {
-	$( 'img' ).correctRythm( 24, 'rem' );
+	$( '.rythm-correct' ).correctRythm( 24, 'rem' );
 } );
